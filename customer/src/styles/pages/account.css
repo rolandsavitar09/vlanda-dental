@@ -1,0 +1,109 @@
+.full-field {
+  grid-column: 1 / -1;
+}
+
+.profile-card,
+.reservation-detail-card {
+  max-width: 780px;
+}
+
+.account-back-button {
+  margin-bottom: 14px;
+}
+
+.profile-field {
+  border-bottom: 1px solid #e5eef1;
+  display: grid;
+  gap: 6px;
+  padding: 16px 0;
+}
+
+.profile-field span {
+  color: var(--muted);
+  font-weight: 750;
+}
+
+.reservation-history-list {
+  display: grid;
+  gap: 18px;
+  max-width: 860px;
+}
+
+.history-card {
+  display: grid;
+  gap: 8px;
+  padding: 24px;
+}
+
+.history-head {
+  align-items: center;
+  display: flex;
+  gap: 16px;
+  justify-content: space-between;
+}
+
+.detail-link {
+  justify-self: end;
+  margin-top: 12px;
+}
+
+.status-badge {
+  align-items: center;
+  border-radius: 999px;
+  display: inline-flex;
+  font-size: 0.9rem;
+  font-weight: 900;
+  gap: 8px;
+  padding: 7px 12px;
+  white-space: nowrap;
+}
+
+.status-badge > span {
+  border-radius: 999px;
+  display: inline-block;
+  height: 9px;
+  width: 9px;
+}
+
+.status-badge.waiting {
+  background: #fff7df;
+  color: #946c0c;
+}
+
+.status-badge.waiting > span {
+  background: var(--warning);
+}
+
+.status-badge.confirmed {
+  background: #e8f7ef;
+  color: #1f7651;
+}
+
+.status-badge.confirmed > span {
+  background: var(--success);
+}
+
+.status-badge.finished {
+  background: #e8f1f9;
+  color: #1f6599;
+}
+
+.status-badge.finished > span {
+  background: var(--info);
+}
+
+.status-badge.cancelled {
+  background: #fff0ef;
+  color: #aa3f3f;
+}
+
+.status-badge.cancelled > span {
+  background: var(--danger);
+}
+
+.detail-divider {
+  background: var(--line);
+  height: 1px;
+  margin: 22px 0 0;
+}
+

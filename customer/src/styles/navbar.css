@@ -1,0 +1,187 @@
+.site-header {
+  align-items: center;
+  background: rgba(255, 255, 255, 0.94);
+  border-bottom: 1px solid rgba(68, 111, 130, 0.13);
+  display: grid;
+  gap: 16px;
+  grid-template-columns: auto 1fr auto;
+  min-height: 64px;
+  left: 0;
+  padding: 8px clamp(18px, 5vw, 70px);
+  position: sticky;
+  right: 0;
+  top: 0;
+  z-index: 1000;
+}
+
+.brand {
+  align-items: center;
+  background: transparent;
+  border: 0;
+  color: var(--brand);
+  display: inline-flex;
+  font-weight: 800;
+  height: 48px;
+  padding: 0;
+  position: relative;
+  width: 118px;
+}
+
+.brand-logo {
+  display: block;
+  height: 100px;
+  left: 0;
+  object-fit: contain;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: auto;
+}
+
+.brand-mark,
+.round-icon,
+.footer-logo {
+  align-items: center;
+  display: grid;
+  place-items: center;
+}
+
+.brand-mark {
+  background: var(--brand);
+  border-radius: 18px;
+  color: #fff;
+  height: 46px;
+  width: 46px;
+}
+
+.main-nav,
+.header-actions,
+.hero-actions,
+.trust-strip,
+.profile-actions,
+.reservation-actions {
+  align-items: center;
+  display: flex;
+  gap: 14px;
+}
+
+.main-nav {
+  gap: clamp(10px, 1.8vw, 24px);
+  justify-content: center;
+}
+
+.main-nav button,
+.site-footer button,
+.text-button {
+  background: transparent;
+  border: 0;
+  color: inherit;
+  padding: 0;
+}
+
+.main-nav button {
+  color: #1c2d35;
+  font-size: 0.96rem;
+  font-weight: 700;
+  padding: 9px 0;
+  position: relative;
+  white-space: nowrap;
+}
+
+.main-nav button::after {
+  background: var(--brand);
+  bottom: 0;
+  content: "";
+  height: 3px;
+  left: 50%;
+  position: absolute;
+  transform: translateX(-50%) scaleX(0);
+  transition: transform 0.2s ease;
+  width: 42px;
+}
+
+.main-nav button.active,
+.main-nav button:hover {
+  color: var(--brand);
+}
+
+.main-nav button.active::after,
+.main-nav button:hover::after {
+  transform: translateX(-50%) scaleX(1);
+}
+
+.header-actions {
+  justify-content: flex-end;
+}
+
+.account-menu {
+  position: relative;
+}
+
+.account-trigger {
+  align-items: center;
+  background: var(--brand-pale);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: var(--brand);
+  display: inline-flex;
+  font-weight: 800;
+  gap: 8px;
+  min-height: 40px;
+  padding: 6px 12px 6px 6px;
+}
+
+.avatar {
+  align-items: center;
+  background: var(--brand);
+  border-radius: 999px;
+  color: #fff;
+  display: inline-grid;
+  font-size: 0.9rem;
+  font-weight: 900;
+  height: 30px;
+  place-items: center;
+  width: 30px;
+}
+
+.account-dropdown {
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  box-shadow: var(--shadow);
+  display: grid;
+  min-width: 240px;
+  padding: 10px;
+  position: absolute;
+  right: 0;
+  top: calc(100% + 12px);
+  z-index: 1010;
+}
+
+.account-dropdown button {
+  background: transparent;
+  border: 0;
+  border-radius: 6px;
+  color: var(--ink);
+  padding: 11px 12px;
+  text-align: left;
+}
+
+.account-dropdown button:hover {
+  background: var(--brand-pale);
+}
+
+.account-name {
+  align-items: center;
+  display: flex;
+  gap: 10px;
+  padding: 8px 10px 12px;
+}
+
+.dropdown-divider {
+  background: var(--line);
+  display: block;
+  height: 1px;
+  margin: 6px 0;
+}
+

@@ -1,0 +1,77 @@
+.content-section {
+  margin: 0 auto;
+  max-width: 1440px;
+  padding: clamp(34px, 5vw, 70px) clamp(18px, 5vw, 70px);
+}
+
+.section-heading {
+  margin-bottom: 26px;
+}
+
+.section-heading h2,
+.detail-hero h1,
+.auth-visual h1,
+.gate-card h1 {
+  color: var(--brand);
+  font-size: clamp(2rem, 3.5vw, 3.5rem);
+  letter-spacing: 0;
+  line-height: 1.05;
+  margin: 0 0 8px;
+}
+
+.section-heading p,
+.body-copy {
+  font-size: 1.12rem;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.service-highlight-grid,
+.why-grid,
+.faq-grid,
+.article-preview-grid,
+.article-grid,
+.doctor-grid,
+.choice-grid,
+.date-grid,
+.time-grid,
+.form-grid {
+  display: grid;
+  gap: 18px;
+}
+
+.service-highlight-grid,
+.choice-grid,
+.article-grid,
+.article-preview-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.why-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.faq-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.doctor-grid,
+.form-grid,
+.about-grid,
+.contact-grid,
+.confirmation-grid,
+.detail-hero,
+.hours-banner,
+.auth-page,
+.page-layout {
+  display: grid;
+  gap: 24px;
+}
+
+.doctor-grid,
+.form-grid,
+.about-grid,
+.contact-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+

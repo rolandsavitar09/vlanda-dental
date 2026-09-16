@@ -1,0 +1,17 @@
+:root {
+  --brand: #446f82;
+  --brand-dark: #315466;
+  --brand-soft: #dce8ed;
+  --brand-pale: #eef6f8;
+  --mint: #6a8d73;
+  --ink: #17313d;
+  --muted: #5e7480;
+  --line: #c8d9df;
+  --surface: #ffffff;
+  --warning: #d8a22d;
+  --success: #2f8f68;
+  --info: #3677a8;
+  --danger: #c85757;
+  --shadow: 0 18px 50px rgba(28, 64, 78, 0.13);
+}
+

@@ -1,0 +1,59 @@
+.primary-button,
+.secondary-button,
+.outline-button,
+.light-button,
+.danger-button {
+  align-items: center;
+  border-radius: 8px;
+  display: inline-flex;
+  font-weight: 800;
+  gap: 8px;
+  justify-content: center;
+  min-height: 42px;
+  padding: 10px 16px;
+  text-decoration: none;
+}
+
+.nav-reservation {
+  min-height: 40px;
+  padding: 9px 15px;
+}
+
+.primary-button {
+  background: var(--brand);
+  border: 1px solid var(--brand);
+  color: #fff;
+}
+
+.secondary-button,
+.outline-button {
+  background: rgba(255, 255, 255, 0.82);
+  border: 2px solid var(--brand);
+  color: var(--brand);
+}
+
+.light-button {
+  background: #fff;
+  border: 1px solid #fff;
+  color: var(--brand);
+}
+
+.danger-button {
+  background: #fff1f1;
+  border: 1px solid #f0b7b7;
+  color: var(--danger);
+}
+
+.small {
+  min-height: 36px;
+  padding: 8px 13px;
+}
+
+.text-button {
+  align-items: center;
+  color: var(--brand);
+  display: inline-flex;
+  font-weight: 800;
+  gap: 6px;
+}
+

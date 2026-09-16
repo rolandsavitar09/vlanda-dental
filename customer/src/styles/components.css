@@ -1,0 +1,276 @@
+.service-highlight,
+.feature-card,
+.article-card,
+.doctor-card,
+.history-card,
+.profile-card,
+.reservation-card,
+.reservation-detail-card,
+.contact-card,
+.contact-form,
+.gate-card,
+.detail-panel,
+.service-group {
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  box-shadow: 0 8px 30px rgba(30, 73, 90, 0.06);
+}
+
+.service-highlight {
+  align-items: center;
+  background: rgba(68, 111, 130, 0.15);
+  border-color: rgba(68, 111, 130, 0.18);
+  color: var(--brand-dark);
+  display: grid;
+  gap: 16px;
+  grid-template-columns: auto 1fr auto;
+  min-height: 130px;
+  padding: 22px;
+  text-align: left;
+}
+
+.featured-service-icon {
+  align-items: center;
+  background: rgba(68, 111, 130, 0.16);
+  border-radius: 999px;
+  display: grid;
+  height: 64px;
+  place-items: center;
+  width: 64px;
+}
+
+.featured-service-icon img {
+  display: block;
+  filter: brightness(0) saturate(100%) invert(23%) sepia(29%) saturate(868%) hue-rotate(157deg) brightness(90%) contrast(88%);
+  height: 38px;
+  object-fit: contain;
+  width: 38px;
+}
+
+.service-highlight-text {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+}
+
+.service-highlight-text strong,
+.service-highlight-text small {
+  display: block;
+}
+
+.service-highlight-text strong {
+  color: var(--brand-dark);
+  font-size: 1.12rem;
+  font-weight: 900;
+  line-height: 1.2;
+}
+
+.service-highlight-text small {
+  color: var(--brand-dark);
+  font-size: 0.9rem;
+  font-weight: 750;
+  line-height: 1.35;
+}
+
+.mini-arrow {
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: var(--brand-dark);
+  display: grid;
+  height: 30px;
+  place-items: center;
+  width: 30px;
+}
+
+.feature-card,
+.contact-card,
+.contact-form,
+.profile-card,
+.reservation-detail-card {
+  padding: 28px;
+}
+
+.feature-card h3,
+.doctor-card h3,
+.service-row strong,
+.history-card h3 {
+  color: var(--brand);
+}
+
+.feature-card p,
+.doctor-card p,
+.service-row p,
+.choice-card small,
+.doctor-choice small {
+  color: var(--muted);
+  font-weight: 650;
+  line-height: 1.45;
+}
+
+.consultation-banner,
+.hours-banner,
+.cta-strip {
+  background: var(--brand);
+  border-radius: 8px;
+  color: #fff;
+  overflow: hidden;
+}
+
+.consultation-banner {
+  min-height: 280px;
+  position: relative;
+}
+
+.consultation-banner img {
+  height: 100%;
+  inset: 0;
+  object-fit: cover;
+  position: absolute;
+  width: 100%;
+}
+
+.consultation-banner > div {
+  background: linear-gradient(100deg, rgba(68, 111, 130, 0.99) 0%, rgba(68, 111, 130, 0.96) 52%, rgba(68, 111, 130, 0.66) 70%, rgba(68, 111, 130, 0) 92%);
+  display: grid;
+  min-height: 280px;
+  padding: clamp(30px, 5vw, 58px);
+  place-content: center start;
+  position: relative;
+  width: min(100%, 780px);
+  z-index: 1;
+}
+
+.consultation-banner h2,
+.hours-banner h2,
+.cta-strip h2 {
+  font-size: clamp(1.7rem, 4vw, 4rem);
+  font-weight: 900;
+  letter-spacing: 0;
+  line-height: 1;
+  margin: 0 0 14px;
+}
+
+.consultation-button {
+  font-size: 0.9rem;
+  justify-self: start;
+  min-height: 38px;
+  padding: 8px 14px;
+}
+
+.doctor-card {
+  align-items: center;
+  border-color: rgba(68, 111, 130, 0.55);
+  display: grid;
+  gap: 24px;
+  grid-template-columns: 122px minmax(0, 1fr);
+  min-height: 176px;
+  padding: 16px 24px;
+}
+
+.doctor-info {
+  align-content: center;
+  display: grid;
+  min-width: 0;
+}
+
+.doctor-avatar {
+  align-items: center;
+  aspect-ratio: 1 / 1.25;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  color: var(--brand);
+  display: grid;
+  overflow: hidden;
+  place-items: center;
+  width: 100%;
+}
+
+.doctor-avatar img {
+  display: block;
+  height: 100%;
+  object-fit: contain;
+  object-position: bottom center;
+  width: 100%;
+}
+
+.doctor-avatar span {
+  align-items: center;
+  background: var(--brand-soft);
+  border-radius: 999px;
+  color: var(--brand);
+  display: flex;
+  font-size: 1.6rem;
+  font-weight: 900;
+  height: 78px;
+  justify-content: center;
+  width: 78px;
+}
+
+.doctor-card h3 {
+  font-size: 1rem;
+  font-weight: 900;
+  line-height: 1.16;
+  margin: 0 0 8px;
+}
+
+.doctor-card .pill {
+  font-size: 0.72rem;
+  justify-self: start;
+  margin-bottom: 12px;
+  padding: 5px 13px;
+  width: fit-content;
+}
+
+.doctor-schedule {
+  display: grid;
+  gap: 10px;
+}
+
+.doctor-card .info-line {
+  color: var(--brand);
+}
+
+.doctor-card .info-line svg {
+  height: 18px;
+  margin-top: 1px;
+  width: 18px;
+}
+
+.doctor-card .info-line strong {
+  color: #111;
+  font-size: 0.96rem;
+  font-weight: 900;
+  line-height: 1.05;
+}
+
+.doctor-card .info-line span {
+  color: #111;
+  font-size: 0.62rem;
+  font-weight: 500;
+  line-height: 1.25;
+  white-space: pre-line;
+}
+
+.pill {
+  background: var(--brand-soft);
+  border-radius: 999px;
+  color: var(--brand);
+  display: inline-flex;
+  font-weight: 850;
+  padding: 7px 16px;
+}
+
+.info-line {
+  align-items: flex-start;
+  display: flex;
+  gap: 12px;
+}
+
+.info-line strong,
+.info-line span {
+  display: block;
+}
+
+

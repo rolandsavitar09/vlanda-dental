@@ -1,0 +1,159 @@
+.site-footer {
+  background: #446f82;
+  color: #fff;
+  padding: 24px clamp(22px, 5vw, 70px) 18px;
+}
+
+.footer-grid {
+  display: grid;
+  gap: clamp(32px, 5vw, 74px);
+  grid-template-columns: 1.2fr 0.55fr 0.8fr 1fr;
+  margin: 0 auto;
+  max-width: 1420px;
+}
+
+.footer-brand {
+  max-width: 280px;
+}
+
+.footer-logo-box {
+  display: block;
+  height: 128px;
+  margin-bottom: 18px;
+  overflow: visible;
+  position: relative;
+  width: 178px;
+}
+
+.footer-logo {
+  display: block;
+  height: auto;
+  left: 0;
+  max-width: none;
+  position: absolute;
+  top: 0;
+  transform: translateY(-22px);
+  width: 200px;
+}
+
+.footer-brand p {
+  color: #fff;
+  font-size: 0.92rem;
+  font-weight: 500;
+  line-height: 1.28;
+  margin: 0 0 20px;
+}
+
+.footer-socials {
+  align-items: center;
+  display: flex;
+  gap: 10px;
+}
+
+.footer-socials a {
+  display: block;
+  line-height: 0;
+}
+
+.footer-socials img {
+  display: block;
+  height: 24px;
+  object-fit: contain;
+  width: 24px;
+}
+
+.site-footer h3 {
+  color: #fff;
+  font-size: 1.12rem;
+  font-weight: 900;
+  line-height: 1.1;
+  margin: 0 0 18px;
+}
+
+.footer-section-toggle {
+  background: transparent;
+  border: 0;
+  color: inherit;
+  font: inherit;
+  font-weight: inherit;
+  margin-bottom: 0;
+  padding: 0;
+  text-align: left;
+}
+
+.footer-links button {
+  color: #fff;
+  display: block;
+  font-size: 0.96rem;
+  font-weight: 450;
+  line-height: 1.2;
+  margin-bottom: 15px;
+  text-align: left;
+}
+
+.footer-links button:hover {
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+.footer-contact {
+  min-width: 0;
+}
+
+.footer-contact-item {
+  align-items: flex-start;
+  display: grid;
+  gap: 14px;
+  grid-template-columns: 22px 1fr;
+  margin-bottom: 15px;
+}
+
+.footer-contact-item svg {
+  height: 22px;
+  margin-top: 1px;
+  stroke: #fff;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.9;
+  width: 22px;
+}
+
+.footer-contact-item span,
+.footer-contact-item a,
+.footer-hours span {
+  color: #fff;
+  display: block;
+  font-size: 0.95rem;
+  font-weight: 450;
+  line-height: 1.18;
+  text-decoration: none;
+}
+
+.footer-contact-item a:hover {
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+.footer-hours strong {
+  color: #fff;
+  display: block;
+  font-size: 1.28rem;
+  font-weight: 900;
+  line-height: 1.05;
+  margin-top: 8px;
+}
+
+.footer-hours strong:first-child {
+  margin-top: 0;
+}
+
+.copyright {
+  border-top: 1px solid rgba(255, 255, 255, 0.55);
+  color: #fff;
+  font-size: 1.05rem;
+  font-weight: 400;
+  line-height: 1.2;
+  margin: 30px auto 0;
+  max-width: 1420px;
+  padding-top: 16px;
+}
