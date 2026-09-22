@@ -178,10 +178,10 @@ export function ReservationsPage({
                 onClick={() => selectReservation(reservation)}
               >
                 <strong>{reservation.code}</strong>
-                <span>{reservation.customer}</span>
-                <span>{reservation.service}</span>
-                <span>{reservation.doctor}</span>
-                <small>{reservation.date} - {reservation.time}</small>
+                <span data-label="Customer"><b className="management-value">{reservation.customer}</b></span>
+                <span data-label="Layanan"><b className="management-value">{reservation.service}</b></span>
+                <span data-label="Dokter"><b className="management-value">{reservation.doctor}</b></span>
+                <small data-label="Jadwal"><b className="management-value">{reservation.date} - {reservation.time}</b></small>
                 <em>{reservation.status}</em>
               </button>
             ))}

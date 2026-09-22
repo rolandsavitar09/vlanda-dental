@@ -1,0 +1,239 @@
+.stats-grid {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.stat-card,
+.admin-panel {
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  box-shadow: 0 10px 30px rgba(30, 73, 90, 0.06);
+}
+
+.stat-card {
+  display: grid;
+  gap: 8px;
+  min-height: 108px;
+  min-width: 0;
+  padding: 18px;
+  text-align: left;
+}
+
+button.stat-card {
+  cursor: pointer;
+}
+
+button.stat-card:hover {
+  transform: translateY(-1px);
+}
+
+.stat-card span {
+  color: var(--muted);
+  font-size: 0.82rem;
+  font-weight: 800;
+  line-height: 1.25;
+}
+
+.stat-card strong {
+  color: var(--brand);
+  font-size: 2.25rem;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.stat-card.warning {
+  border-color: rgba(216, 162, 45, 0.45);
+}
+
+.stat-card.success {
+  border-color: rgba(47, 143, 104, 0.45);
+}
+
+.stat-card.info {
+  border-color: rgba(54, 119, 168, 0.45);
+}
+
+.stat-card.danger {
+  border-color: rgba(200, 87, 87, 0.45);
+}
+
+.dashboard-grid {
+  display: grid;
+  gap: 18px;
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.admin-panel {
+  padding: 18px;
+  min-width: 0;
+}
+
+.panel-heading {
+  align-items: start;
+  display: flex;
+  gap: 14px;
+  justify-content: space-between;
+  margin-bottom: 14px;
+  min-width: 0;
+}
+
+.panel-heading h2 {
+  font-size: 1.2rem;
+  line-height: 1.1;
+}
+
+.reservation-table,
+.slot-list {
+  display: grid;
+  gap: 8px;
+}
+
+.reservation-row {
+  align-items: center;
+  background: #fff;
+  border: 1px solid #e5eef1;
+  border-radius: 8px;
+  color: var(--ink);
+  cursor: pointer;
+  display: grid;
+  column-gap: 18px;
+  grid-template-columns: 92px minmax(130px, 0.85fr) minmax(150px, 1fr) minmax(180px, 1fr) 112px 132px;
+  min-height: 56px;
+  min-width: 0;
+  padding: 10px 12px;
+  text-align: left;
+  width: 100%;
+}
+
+.reservation-row:hover {
+  background: var(--brand-pale);
+  border-color: var(--brand);
+}
+
+.reservation-row.waiting {
+  background: rgba(216, 162, 45, 0.1);
+  border-color: rgba(216, 162, 45, 0.45);
+}
+
+.reservation-row.waiting em {
+  background: rgba(216, 162, 45, 0.2);
+  color: #8a6518;
+}
+
+.reservation-row.confirmed {
+  background: rgba(47, 143, 104, 0.08);
+  border-color: rgba(47, 143, 104, 0.34);
+}
+
+.reservation-row.confirmed:hover {
+  background: rgba(47, 143, 104, 0.13);
+  border-color: rgba(47, 143, 104, 0.5);
+}
+
+.reservation-row.confirmed em {
+  background: rgba(47, 143, 104, 0.16);
+  color: #2f6f49;
+}
+
+.reservation-row.finished {
+  background: rgba(54, 119, 168, 0.08);
+  border-color: rgba(54, 119, 168, 0.34);
+}
+
+.reservation-row.finished:hover {
+  background: rgba(54, 119, 168, 0.13);
+  border-color: rgba(54, 119, 168, 0.5);
+}
+
+.reservation-row.finished em {
+  background: rgba(54, 119, 168, 0.16);
+  color: #2f668f;
+}
+
+.reservation-row.cancelled {
+  background: rgba(200, 87, 87, 0.08);
+  border-color: rgba(200, 87, 87, 0.34);
+}
+
+.reservation-row.cancelled:hover {
+  background: rgba(200, 87, 87, 0.13);
+  border-color: rgba(200, 87, 87, 0.5);
+}
+
+.reservation-row.cancelled em {
+  background: rgba(200, 87, 87, 0.16);
+  color: #a74747;
+}
+
+.reservation-row strong,
+.slot-item strong {
+  color: var(--brand);
+  font-size: 0.82rem;
+  font-weight: 900;
+}
+
+.reservation-row > span,
+.slot-item span {
+  color: var(--ink);
+  font-size: 0.76rem;
+  line-height: 1.25;
+}
+
+.reservation-row > strong,
+.reservation-row > span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.reservation-row > span:not(.dashboard-schedule) {
+  white-space: nowrap;
+}
+
+.dashboard-schedule {
+  align-items: start;
+  display: grid;
+  gap: 2px;
+  white-space: nowrap;
+}
+
+.dashboard-schedule span {
+  display: block;
+}
+
+.reservation-row em,
+.slot-item em {
+  background: var(--brand-soft);
+  border-radius: 999px;
+  color: var(--brand);
+  font-size: 0.68rem;
+  font-style: normal;
+  font-weight: 900;
+  justify-self: end;
+  min-width: 112px;
+  max-width: 100%;
+  overflow: hidden;
+  padding: 6px 10px;
+  text-align: center;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.slot-item {
+  align-items: center;
+  border: 1px solid #e5eef1;
+  border-radius: 8px;
+  display: grid;
+  gap: 12px;
+  grid-template-columns: 1fr auto;
+  min-height: 58px;
+  padding: 10px 12px;
+}
+
+.slot-item div {
+  display: grid;
+  gap: 3px;
+}
+

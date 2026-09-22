@@ -59,12 +59,11 @@ export function Dashboard({ openReservations, reservations }: DashboardProps) {
                   onClick={() => openReservations(undefined, reservation.id)}
                 >
                   <strong>{reservation.code}</strong>
-                  <span>{reservation.customer}</span>
-                  <span>{reservation.service}</span>
-                  <span>{reservation.doctor}</span>
-                  <span className="dashboard-schedule">
-                    <span>{reservation.date}</span>
-                    <span>{reservation.time}</span>
+                  <span data-label="Customer">{reservation.customer}</span>
+                  <span data-label="Layanan">{reservation.service}</span>
+                  <span data-label="Dokter">{reservation.doctor}</span>
+                  <span className="dashboard-schedule" data-label="Jadwal">
+                    {reservation.date} - {reservation.time}
                   </span>
                   <em>{reservation.status}</em>
                 </button>

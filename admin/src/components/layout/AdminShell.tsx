@@ -70,7 +70,7 @@ export function AdminShell({
         </nav>
       </aside>
 
-      <section className="admin-main">
+      <section className={`admin-main admin-main-${activePage}`}>
         <header className="admin-topbar">
           <div>
             <h1>{title}</h1>

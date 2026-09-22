@@ -104,15 +104,15 @@ const doctorScheduleMap: Record<string, Doctor['schedule']> = {
   ervinda: [
     {
       day: 'Sabtu',
-      detail: 'Sesi 1: 07.30 WIB - 12.00 WIB (Lihat jadwal terlampir)\nSesi 2: 15.00 WIB - 20.30 WIB',
+      detail: 'Sesi 1: 07.30 WIB - 12.00 WIB (Lihat jadwal terlampir)\nSesi 2: 15.30 WIB - 20.30 WIB',
     },
-    { day: 'Minggu', detail: 'Sesi 1: 07.30 WIB - 12.00 WIB\nSesi 2: 15.00 WIB - 20.30 WIB' },
+    { day: 'Minggu', detail: 'Sesi 1: 07.30 WIB - 12.00 WIB\nSesi 2: 15.30 WIB - 20.30 WIB' },
   ],
   linda: [
-    { day: 'Senin - Jumat', detail: 'Sesi 2: 15.00 WIB - 20.30 WIB' },
+    { day: 'Senin - Jumat', detail: 'Sesi 2: 15.30 WIB - 20.30 WIB' },
     {
       day: 'Sabtu - Minggu',
-      detail: 'Sesi 1: 07.30 WIB - 12.00 WIB (Lihat jadwal terlampir)\nSesi 2: 15.00 WIB - 20.30 WIB',
+      detail: 'Sesi 1: 07.30 WIB - 12.00 WIB (Lihat jadwal terlampir)\nSesi 2: 15.30 WIB - 20.30 WIB',
     },
   ],
 }

@@ -1,0 +1,274 @@
+.schedule-page {
+  display: grid;
+  gap: 14px;
+}
+
+.schedule-toolbar {
+  align-items: center;
+  display: grid;
+  gap: 12px;
+  grid-template-columns: minmax(220px, 0.9fr) minmax(300px, 1fr) auto;
+  min-width: 0;
+}
+
+.doctor-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.doctor-tabs button {
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: var(--brand);
+  cursor: pointer;
+  font-size: 0.78rem;
+  font-weight: 900;
+  min-height: 34px;
+  padding: 7px 12px;
+}
+
+.schedule-quick-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: flex-end;
+  min-width: 0;
+}
+
+.schedule-quick-actions button {
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  color: var(--brand);
+  cursor: pointer;
+  font-size: 0.76rem;
+  font-weight: 900;
+  min-height: 34px;
+  padding: 7px 11px;
+  white-space: nowrap;
+}
+
+.schedule-quick-actions button:hover {
+  background: var(--brand);
+  color: #fff;
+}
+
+.doctor-tabs button.active,
+.doctor-tabs button:hover {
+  background: var(--brand);
+  color: #fff;
+}
+
+.schedule-stat-grid {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.schedule-stat-grid article {
+  background: var(--brand-pale);
+  border: 1px solid rgba(68, 111, 130, 0.18);
+  border-radius: 8px;
+  display: grid;
+  gap: 4px;
+  min-height: 62px;
+  padding: 10px 12px;
+}
+
+.schedule-stat-grid span {
+  color: var(--muted);
+  font-size: 0.74rem;
+  font-weight: 850;
+}
+
+.schedule-stat-grid strong {
+  color: var(--brand);
+  font-size: 1.45rem;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.schedule-list {
+  display: grid;
+  gap: 12px;
+}
+
+.schedule-day-section {
+  display: grid;
+  gap: 8px;
+}
+
+.schedule-day-heading {
+  align-items: center;
+  display: flex;
+  gap: 10px;
+  justify-content: space-between;
+}
+
+.schedule-day-heading h3 {
+  color: var(--brand);
+  font-size: 0.94rem;
+  font-weight: 900;
+  margin: 0;
+}
+
+.schedule-day-heading em {
+  background: var(--brand-soft);
+  border-radius: 999px;
+  color: var(--brand);
+  font-size: 0.68rem;
+  font-style: normal;
+  font-weight: 900;
+  padding: 5px 10px;
+}
+
+.schedule-day-section > p {
+  background: rgba(68, 111, 130, 0.08);
+  border-radius: 8px;
+  color: var(--muted);
+  font-size: 0.76rem;
+  font-weight: 750;
+  margin: 0;
+  padding: 9px 11px;
+}
+
+.admin-time-grid {
+  display: grid;
+  gap: 8px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.admin-time-card {
+  align-content: start;
+  background: #fff;
+  border: 1px solid #e5eef1;
+  border-radius: 8px;
+  color: var(--ink);
+  cursor: pointer;
+  display: grid;
+  gap: 6px;
+  min-height: 94px;
+  padding: 10px;
+  text-align: left;
+}
+
+.admin-time-card.active,
+.admin-time-card:hover {
+  background: var(--brand-pale);
+  border-color: var(--brand);
+}
+
+.admin-time-card strong {
+  color: var(--brand);
+  font-size: 1rem;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.admin-time-card small,
+.admin-time-card small span {
+  color: var(--muted);
+  display: block;
+  font-size: 0.66rem;
+  font-weight: 750;
+  line-height: 1.18;
+}
+
+.schedule-item {
+  align-items: center;
+  background: #fff;
+  border: 1px solid #e5eef1;
+  border-radius: 8px;
+  color: var(--ink);
+  cursor: pointer;
+  display: grid;
+  gap: 12px;
+  grid-template-columns: minmax(0, 1fr) auto;
+  min-height: 70px;
+  padding: 12px 14px;
+  text-align: left;
+}
+
+.schedule-item.active,
+.schedule-item:hover {
+  background: var(--brand-pale);
+  border-color: var(--brand);
+}
+
+.schedule-item div {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.schedule-item strong {
+  color: var(--brand);
+  font-size: 0.92rem;
+  font-weight: 900;
+  line-height: 1.15;
+}
+
+.schedule-item span,
+.schedule-item small {
+  color: var(--ink);
+  font-size: 0.74rem;
+  line-height: 1.25;
+}
+
+.schedule-item small {
+  color: var(--muted);
+  font-weight: 700;
+}
+
+.schedule-status,
+.schedule-item em {
+  background: var(--brand-soft);
+  border-radius: 999px;
+  color: var(--brand);
+  font-size: 0.68rem;
+  font-style: normal;
+  font-weight: 900;
+  justify-self: end;
+  padding: 6px 10px;
+  white-space: nowrap;
+}
+
+.schedule-status.penuh {
+  background: rgba(216, 162, 45, 0.18);
+}
+
+.schedule-status.libur {
+  background: rgba(200, 87, 87, 0.14);
+  color: var(--danger);
+}
+
+.booking-summary {
+  background: var(--brand-pale);
+  border: 1px solid rgba(68, 111, 130, 0.18);
+  border-radius: 8px;
+  color: var(--brand);
+  display: grid;
+  gap: 4px;
+  padding: 12px;
+}
+
+.booking-summary span {
+  font-size: 0.72rem;
+  font-weight: 900;
+}
+
+.booking-summary strong {
+  color: var(--ink);
+  font-size: 0.9rem;
+  font-weight: 900;
+}
+
+.booking-summary p {
+  color: var(--muted);
+  font-size: 0.76rem;
+  font-weight: 650;
+  margin: 0;
+}
+

@@ -165,6 +165,16 @@ async function main() {
     })
   }
 
+  await prisma.doctorSchedule.deleteMany({
+    where: {
+      date: { gte: getTodayUtc() },
+      note: null,
+      reservations: { none: {} },
+      status: 'AVAILABLE',
+      time: '15.00',
+    },
+  })
+
   const slots = createDoctorSlots(getTodayUtc(), 60)
 
   for (const { id, doctorId, date, time, status } of slots) {
@@ -233,12 +243,12 @@ function createDoctorSlots(startDate: Date, totalDays: number) {
     const dateKey = date.toISOString().slice(0, 10)
 
     const lindaRanges: Array<readonly [string, string]> = day === 0 || day === 6
-      ? [['07.30', '12.00'], ['15.00', '20.30']]
-      : [['15.00', '20.30']]
+      ? [['07.30', '12.00'], ['15.30', '20.30']]
+      : [['15.30', '20.30']]
     addSlots(slots, 'linda', dateKey, lindaRanges)
 
     if (day === 0 || day === 6) {
-      addSlots(slots, 'ervinda', dateKey, [['07.30', '12.00'], ['15.00', '20.30']])
+      addSlots(slots, 'ervinda', dateKey, [['07.30', '12.00'], ['15.30', '20.30']])
     }
   }
 

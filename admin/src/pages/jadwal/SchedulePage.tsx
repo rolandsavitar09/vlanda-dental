@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import {
   deleteAdminSchedule,
   getAdminSchedules,
@@ -27,6 +27,7 @@ const emptySlot: AdminScheduleSlot = {
 }
 
 export function SchedulePage({ doctors, scheduleSlots, setScheduleSlots, token }: SchedulePageProps) {
+  const editorRef = useRef<HTMLElement>(null)
   const [selectedId, setSelectedId] = useState('')
   const [activeDoctorId, setActiveDoctorId] = useState(doctors[0]?.id ?? '')
   const [draft, setDraft] = useState<AdminScheduleSlot>(emptySlot)
@@ -97,6 +98,7 @@ export function SchedulePage({ doctors, scheduleSlots, setScheduleSlots, token }
     setDraft(slot)
     setMessage('')
     setError('')
+    scrollToEditor()
   }
 
   function createSlot() {
@@ -104,6 +106,13 @@ export function SchedulePage({ doctors, scheduleSlots, setScheduleSlots, token }
     setDraft(createBlankSlot())
     setMessage('')
     setError('')
+    scrollToEditor()
+  }
+
+  function scrollToEditor() {
+    window.setTimeout(() => {
+      editorRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    }, 0)
   }
 
   function updateDoctor(doctorId: string) {
@@ -217,6 +226,10 @@ export function SchedulePage({ doctors, scheduleSlots, setScheduleSlots, token }
             </article>
           ))}
         </div>
+        <div className="schedule-quick-actions">
+          <button type="button" onClick={scrollToEditor}>Edit Slot</button>
+          <button type="button" onClick={createSlot}>Tambah Slot</button>
+        </div>
       </div>
 
       <div className="content-management-page">
@@ -268,7 +281,7 @@ export function SchedulePage({ doctors, scheduleSlots, setScheduleSlots, token }
           </div>
         </article>
 
-        <article className="admin-panel editor-panel">
+        <article className="admin-panel editor-panel" ref={editorRef}>
           <div className="panel-heading compact">
             <div>
               <h2>{selectedId ? 'Edit Slot' : 'Tambah Slot'}</h2>
