@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import instagramLogo from '../../assets/Logo instagram.svg'
 import whatsappLogo from '../../assets/Logo Whatsapp.svg'
-import footerLogo from '../../assets/logo vlanda dental 2.svg'
+import footerLogo from '../../assets/logo-vlanda-small.png'
 import { navItems } from '../../data/navigation'
 import type { ServiceCategory, View } from '../../types'
 import { Icon } from '../common/Icon'
@@ -26,15 +26,15 @@ export function Footer({ navigate, serviceCategories, startReservation }: Footer
       <div className="footer-grid">
         <div className="footer-brand">
           <span className="footer-logo-box">
-            <img className="footer-logo" src={footerLogo} alt="Vlanda Dental" />
+            <img className="footer-logo" src={footerLogo} alt="Vlanda Dental" loading="lazy" decoding="async" />
           </span>
           <p>Klinik gigi terpercaya dengan layanan profesional, modern, dan nyaman untuk semua usia.</p>
           <div className="footer-socials" aria-label="Media sosial Vlanda Dental">
             <a href={whatsappUrl} target="_blank" rel="noreferrer" aria-label="WhatsApp Vlanda Dental">
-              <img src={whatsappLogo} alt="" />
+              <img src={whatsappLogo} alt="" loading="lazy" decoding="async" />
             </a>
             <a href={instagramUrl} target="_blank" rel="noreferrer" aria-label="Instagram Vlanda Dental">
-              <img src={instagramLogo} alt="" />
+              <img src={instagramLogo} alt="" loading="lazy" decoding="async" />
             </a>
           </div>
         </div>

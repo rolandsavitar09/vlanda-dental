@@ -2,6 +2,8 @@ import { useEffect, useMemo, useState } from 'react'
 import { Footer } from './components/layout/Footer'
 import { Navbar } from './components/layout/Navbar'
 import { emptyReservationDraft, initialUser } from './data/customer'
+import { doctors as fallbackDoctors } from './data/doctors'
+import { serviceCategories as fallbackServiceCategories } from './data/services'
 import { DetailReservasi } from './pages/akun/DetailReservasi'
 import { ProfilSaya } from './pages/akun/ProfilSaya'
 import { RiwayatReservasi } from './pages/akun/RiwayatReservasi'
@@ -46,8 +48,8 @@ function App() {
   const [articleCategory, setArticleCategory] = useState('Semua')
   const [articleSearch, setArticleSearch] = useState('')
   const [articles, setArticles] = useState<Article[]>([])
-  const [doctors, setDoctors] = useState<Doctor[]>([])
-  const [serviceCategories, setServiceCategories] = useState<ServiceCategory[]>([])
+  const [doctors, setDoctors] = useState<Doctor[]>(fallbackDoctors)
+  const [serviceCategories, setServiceCategories] = useState<ServiceCategory[]>(fallbackServiceCategories)
   const [selectedArticleId, setSelectedArticleId] = useState('')
   const [reservations, setReservations] = useState<Reservation[]>([])
   const [selectedReservationCode, setSelectedReservationCode] = useState('')
@@ -55,6 +57,7 @@ function App() {
   const [isSubmittingReservation, setIsSubmittingReservation] = useState(false)
   const [schedules, setSchedules] = useState<ApiSchedule[]>([])
   const [isLoadingSchedules, setIsLoadingSchedules] = useState(false)
+  const [hasLoadedSchedules, setHasLoadedSchedules] = useState(false)
   const [reservationStep, setReservationStep] = useState(0)
   const [draft, setDraft] = useState<ReservationDraft>(emptyReservationDraft)
   const [profileDraft, setProfileDraft] = useState<UserProfile>(initialUser.profile)
@@ -102,7 +105,7 @@ function App() {
           nextServices.some((service) => service.id === currentId) ? currentId : nextServices[0]?.id ?? '',
         )
       })
-      .catch(() => setServiceCategories([]))
+      .catch(() => undefined)
   }, [])
 
   useEffect(() => {
@@ -116,15 +119,7 @@ function App() {
             : nextDoctors[0]?.id ?? '',
         }))
       })
-      .catch(() => setDoctors([]))
-  }, [])
-
-  useEffect(() => {
-    setIsLoadingSchedules(true)
-    getSchedules()
-      .then(setSchedules)
-      .catch(() => setReservationError('Jadwal belum bisa dimuat. Pastikan backend aktif.'))
-      .finally(() => setIsLoadingSchedules(false))
+      .catch(() => undefined)
   }, [])
 
   useEffect(() => {
@@ -206,6 +201,7 @@ function App() {
       return
     }
 
+    loadSchedules()
     fillDraftFromUser(user.profile, serviceId)
     setReservationStep(0)
     navigate('reservation')
@@ -226,6 +222,7 @@ function App() {
     setProfileDraft(nextUser.profile)
 
     if (returnAfterLogin === 'reservation') {
+      loadSchedules()
       fillDraftFromUser(nextUser.profile)
       setReservationStep(0)
     }
@@ -234,6 +231,22 @@ function App() {
     setAuthPassword('')
     navigate(returnAfterLogin)
     setReturnAfterLogin('profile')
+  }
+
+  function loadSchedules() {
+    if (hasLoadedSchedules || isLoadingSchedules) {
+      return
+    }
+
+    setIsLoadingSchedules(true)
+    getSchedules()
+      .then((nextSchedules) => {
+        setSchedules(nextSchedules)
+        setHasLoadedSchedules(true)
+        setReservationError('')
+      })
+      .catch(() => setReservationError('Jadwal belum bisa dimuat. Pastikan backend aktif.'))
+      .finally(() => setIsLoadingSchedules(false))
   }
 
   async function handleAuthSubmit(mode: 'login' | 'register') {

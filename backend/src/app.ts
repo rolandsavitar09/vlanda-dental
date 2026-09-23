@@ -23,7 +23,10 @@ app.use(
   }),
 )
 app.use(express.json())
-app.use('/uploads', express.static(path.resolve(process.cwd(), 'uploads')))
+app.use('/uploads', express.static(path.resolve(process.cwd(), 'uploads'), {
+  etag: true,
+  maxAge: '7d',
+}))
 
 app.get('/health', (_req, res) => {
   res.json({ status: 'ok' })

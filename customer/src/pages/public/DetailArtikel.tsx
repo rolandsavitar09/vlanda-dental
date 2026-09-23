@@ -32,7 +32,7 @@ export function DetailArtikel({ article, navigate, startReservation }: DetailArt
 
         <article className="article-detail-card">
           {article.imageUrl ? (
-            <img className="article-detail-image" src={article.imageUrl} alt={article.title} />
+            <img className="article-detail-image" src={article.imageUrl} alt={article.title} decoding="async" />
           ) : null}
           <div className="article-detail-content">
             <span>{article.category}</span>

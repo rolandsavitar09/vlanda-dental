@@ -1,4 +1,4 @@
-import logoVlandaDental from '../../assets/logo vlanda dental.png'
+import logoVlandaDental from '../../assets/logo-vlanda-small.png'
 import { navItems } from '../../data/navigation'
 import type { User, View } from '../../types'
 import { getInitial, getShortName } from '../../utils/format'
@@ -25,7 +25,7 @@ export function Navbar({
   return (
     <header className="site-header">
       <button className="brand" type="button" onClick={() => navigate('home')}>
-        <img className="brand-logo" src={logoVlandaDental} alt="Vlanda Dental" />
+        <img className="brand-logo" src={logoVlandaDental} alt="Vlanda Dental" decoding="async" />
       </button>
 
       <nav className="main-nav" aria-label="Navigasi utama">

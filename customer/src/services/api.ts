@@ -8,6 +8,8 @@ import type {
   User,
   UserProfile,
 } from '../types'
+import drgLindaPhoto from '../assets/drg-linda-card.png'
+import drgVindaPhoto from '../assets/drg-vinda-card.png'
 
 const API_BASE_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:4000'
 
@@ -115,6 +117,11 @@ const doctorScheduleMap: Record<string, Doctor['schedule']> = {
       detail: 'Sesi 1: 07.30 WIB - 12.00 WIB (Lihat jadwal terlampir)\nSesi 2: 15.30 WIB - 20.30 WIB',
     },
   ],
+}
+
+const defaultDoctorPhotos: Record<string, string> = {
+  ervinda: drgVindaPhoto,
+  linda: drgLindaPhoto,
 }
 
 async function request<T>(path: string, options: RequestOptions = {}) {
@@ -247,10 +254,27 @@ function toDoctor(doctor: ApiDoctor): Doctor {
       .toUpperCase(),
     name: doctor.name,
     note: doctor.note ?? '',
-    photo: doctor.photoUrl?.startsWith('/uploads') ? `${API_BASE_URL}${doctor.photoUrl}` : doctor.photoUrl ?? '',
+    photo: getDoctorPhoto(doctor),
     role: doctor.role,
     schedule: doctorScheduleMap[doctor.id] ?? [],
   }
+}
+
+function getDoctorPhoto(doctor: ApiDoctor) {
+  const defaultPhoto = defaultDoctorPhotos[doctor.id]
+
+  if (!doctor.photoUrl) {
+    return defaultPhoto ?? ''
+  }
+
+  if (
+    defaultPhoto &&
+    (doctor.photoUrl.endsWith('/drg-linda.png') || doctor.photoUrl.endsWith('/drg-vinda.png'))
+  ) {
+    return defaultPhoto
+  }
+
+  return doctor.photoUrl.startsWith('/uploads') ? `${API_BASE_URL}${doctor.photoUrl}` : doctor.photoUrl
 }
 
 function toServiceCategory(category: ApiServiceCategory): ServiceCategory {

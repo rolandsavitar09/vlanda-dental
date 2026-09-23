@@ -10,7 +10,7 @@ export function ArticleCard({ article, onOpen }: ArticleCardProps) {
   return (
     <button className="article-card" type="button" onClick={() => onOpen(article.id)}>
       <div className="article-thumb">
-        {article.imageUrl ? <img src={article.imageUrl} alt="" /> : <Icon name="tooth" />}
+        {article.imageUrl ? <img src={article.imageUrl} alt="" loading="lazy" decoding="async" /> : <Icon name="tooth" />}
       </div>
       <div>
         <span>{article.category}</span>

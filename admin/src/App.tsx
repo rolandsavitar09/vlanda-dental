@@ -8,7 +8,7 @@ import { DoctorsPage } from './pages/dokter/DoctorsPage'
 import { SchedulePage } from './pages/jadwal/SchedulePage'
 import { ServicesPage } from './pages/layanan/ServicesPage'
 import { ReservationsPage } from './pages/reservasi/ReservationsPage'
-import { getAdminDoctors, getAdminReservations, getAdminSchedules, loginAdmin } from './services/api'
+import { getAdminDoctors, getAdminReservations, isAuthError, loginAdmin } from './services/api'
 import type {
   AdminArticle,
   AdminDoctor,
@@ -52,6 +52,8 @@ export function App() {
   const [services, setServices] = useState<AdminService[]>([])
   const [doctors, setDoctors] = useState<AdminDoctor[]>([])
   const [scheduleSlots, setScheduleSlots] = useState<AdminScheduleSlot[]>([])
+  const [dataError, setDataError] = useState('')
+  const activePageRef = useRef(activePage)
   const knownReservationIdsRef = useRef<Set<string>>(new Set())
   const pendingReservationCount = useMemo(
     () => reservations.filter((reservation) => reservation.status === 'Menunggu Konfirmasi').length,
@@ -59,12 +61,30 @@ export function App() {
   )
 
   useEffect(() => {
+    activePageRef.current = activePage
+  }, [activePage])
+
+  useEffect(() => {
     if (!session) {
       setReservations([])
+      setDataError('')
+      knownReservationIdsRef.current = new Set()
       return
     }
 
     let shouldIgnore = false
+    const offlineMessage = 'Backend belum tersambung. Data lama tetap ditampilkan dan akan dicoba refresh otomatis.'
+
+    const handleDataLoadError = (loadError: unknown) => {
+      if (shouldIgnore) return
+
+      if (isAuthError(loadError)) {
+        handleLogout()
+        return
+      }
+
+      setDataError(offlineMessage)
+    }
 
     const loadReservations = async (withNewReservationCheck = false) => {
       try {
@@ -79,14 +99,13 @@ export function App() {
 
         knownReservationIdsRef.current = new Set(nextReservations.map((reservation) => reservation.id))
         setReservations(nextReservations)
+        setDataError('')
 
-        if (withNewReservationCheck && hasNewPendingReservation && activePage !== 'reservations') {
+        if (withNewReservationCheck && hasNewPendingReservation && activePageRef.current !== 'reservations') {
           setReservationStatusFilter('Menunggu Konfirmasi')
         }
-      } catch {
-        if (!shouldIgnore) {
-          handleLogout()
-        }
+      } catch (loadError) {
+        handleDataLoadError(loadError)
       }
     }
 
@@ -97,20 +116,12 @@ export function App() {
 
     getAdminDoctors(session.token)
       .then(setDoctors)
-      .catch(() => {
-        setDoctors([])
-      })
-    getAdminSchedules(session.token)
-      .then(setScheduleSlots)
-      .catch(() => {
-        setScheduleSlots([])
-      })
-
+      .catch(handleDataLoadError)
     return () => {
       shouldIgnore = true
       window.clearInterval(pollingId)
     }
-  }, [session, activePage])
+  }, [session])
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -163,6 +174,7 @@ export function App() {
         setActivePage={setActivePage}
         title={pageTitle[activePage]}
       >
+        {dataError ? <p className="admin-connection-alert">{dataError}</p> : null}
         {activePage === 'dashboard' ? (
           <Dashboard
             openReservations={(status, reservationId) => {

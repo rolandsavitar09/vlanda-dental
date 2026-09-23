@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react'
-import heroClinic from '../../assets/hero-clinic.png'
+import heroClinic from '../../assets/hero-clinic-optimized.jpg'
 import iconPelayanan from '../../assets/Icon pelayanan.svg'
 import iconSteril from '../../assets/Icon Steril.svg'
 import vektorDokter from '../../assets/Vektor dokter.svg'
@@ -43,7 +43,13 @@ export function Hero({
 }: HeroProps) {
   return (
     <section className={`hero-section ${className}`.trim()}>
-      <img className="hero-image" src={heroClinic} alt="Ruang perawatan gigi modern Vlanda Dental" />
+      <img
+        className="hero-image"
+        src={heroClinic}
+        alt="Ruang perawatan gigi modern Vlanda Dental"
+        decoding="async"
+        fetchPriority="high"
+      />
       <div className="hero-overlay">
         <p className="eyebrow">{eyebrow}</p>
         <h1>{title}</h1>

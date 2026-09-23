@@ -133,3 +133,14 @@
   padding: 8px 14px;
 }
 
+.admin-connection-alert {
+  background: #fff8e6;
+  border: 1px solid #e8c872;
+  border-radius: 8px;
+  color: #76540f;
+  font-size: 0.9rem;
+  font-weight: 800;
+  margin: 0;
+  padding: 12px 14px;
+}
+

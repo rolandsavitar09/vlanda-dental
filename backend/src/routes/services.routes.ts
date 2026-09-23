@@ -40,10 +40,28 @@ servicesRouter.get(
   '/',
   asyncHandler(async (_req, res) => {
     const categories = await prisma.serviceCategory.findMany({
-      include: { services: { orderBy: [{ sortOrder: 'asc' }, { createdAt: 'asc' }] } },
       orderBy: { sortOrder: 'asc' },
+      select: {
+        iconKey: true,
+        id: true,
+        name: true,
+        services: {
+          orderBy: [{ sortOrder: 'asc' }, { createdAt: 'asc' }],
+          select: {
+            categoryId: true,
+            description: true,
+            estimatedDuration: true,
+            id: true,
+            isActive: true,
+            price: true,
+            title: true,
+          },
+          where: { isActive: true },
+        },
+      },
     })
 
+    res.set('Cache-Control', 'public, max-age=60')
     res.json(categories)
   }),
 )

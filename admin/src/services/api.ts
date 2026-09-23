@@ -119,6 +119,20 @@ type RequestOptions = RequestInit & {
   token?: string
 }
 
+export class ApiRequestError extends Error {
+  status: number
+
+  constructor(message: string, status: number) {
+    super(message)
+    this.name = 'ApiRequestError'
+    this.status = status
+  }
+}
+
+export function isAuthError(error: unknown) {
+  return error instanceof ApiRequestError && (error.status === 401 || error.status === 403)
+}
+
 const statusToView: Record<string, AdminReservationStatus> = {
   CANCELLED: 'Dibatalkan',
   COMPLETED: 'Selesai',
@@ -164,7 +178,7 @@ async function request<T>(path: string, options: RequestOptions = {}) {
 
   if (!response.ok) {
     const error = (await response.json().catch(() => null)) as { message?: string } | null
-    throw new Error(error?.message ?? 'Permintaan ke server gagal')
+    throw new ApiRequestError(error?.message ?? 'Permintaan ke server gagal', response.status)
   }
 
   if (response.status === 204) {

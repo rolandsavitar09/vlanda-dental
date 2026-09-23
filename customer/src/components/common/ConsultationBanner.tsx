@@ -1,4 +1,4 @@
-import consultationBanner from '../../assets/consultation-banner.png'
+import consultationBanner from '../../assets/consultation-banner-optimized.jpg'
 import { Icon } from './Icon'
 
 type ConsultationBannerProps = {
@@ -10,7 +10,12 @@ export function ConsultationBanner({ className = '', startReservation }: Consult
   return (
     <section className={`content-section ${className}`.trim()}>
       <div className="consultation-banner">
-        <img src={consultationBanner} alt="Pasien tersenyum setelah konsultasi gigi" />
+        <img
+          src={consultationBanner}
+          alt="Pasien tersenyum setelah konsultasi gigi"
+          loading="lazy"
+          decoding="async"
+        />
         <div>
           <h2>
             Konsultasi Gigi

@@ -7,7 +7,11 @@ type DoctorAvatarProps = {
 export function DoctorAvatar({ doctor }: DoctorAvatarProps) {
   return (
     <div className="doctor-avatar" aria-label={doctor.name}>
-      {doctor.photo ? <img src={doctor.photo} alt={doctor.name} /> : <span>{doctor.initials}</span>}
+      {doctor.photo ? (
+        <img src={doctor.photo} alt={doctor.name} loading="lazy" decoding="async" />
+      ) : (
+        <span>{doctor.initials}</span>
+      )}
     </div>
   )
 }

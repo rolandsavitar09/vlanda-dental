@@ -38,6 +38,16 @@ const serviceCategoryIcons: Record<string, string> = {
   orthodonti: iconOrthodonti,
 }
 
+const dayIndexByName: Record<string, number> = {
+  Minggu: 0,
+  Senin: 1,
+  Selasa: 2,
+  Rabu: 3,
+  Kamis: 4,
+  Jumat: 5,
+  Sabtu: 6,
+}
+
 export function Reservasi({
   draft,
   doctors,
@@ -56,9 +66,17 @@ export function Reservasi({
   const allServices = serviceCategories.flatMap((category) => category.services)
   const selectedService = allServices.find((service) => service.id === draft.serviceId) ?? allServices[0]
   const selectedDoctor = doctors.find((doctor) => doctor.id === draft.doctorId) ?? doctors[0]
-  const doctorSlots = schedules.filter(
-    (schedule) => schedule.doctorId === draft.doctorId && schedule.status !== 'OFF',
-  )
+  const todayKey = getLocalDateKey(new Date())
+  const doctorSlots = schedules.filter((schedule) => {
+    const scheduleDate = schedule.date.slice(0, 10)
+
+    return (
+      schedule.doctorId === draft.doctorId &&
+      schedule.status !== 'OFF' &&
+      scheduleDate >= todayKey &&
+      isWithinDoctorPracticeTime(selectedDoctor, scheduleDate, schedule.time)
+    )
+  })
   const availableDates = Array.from(
     new Set(doctorSlots.map((schedule) => schedule.date.slice(0, 10))),
   ).sort()
@@ -66,11 +84,17 @@ export function Reservasi({
     .filter((schedule) => schedule.date.slice(0, 10) === draft.date)
     .sort((first, second) => first.time.localeCompare(second.time))
     .map<ReservationTimeOption>((schedule) => ({ id: schedule.id, status: schedule.status, time: schedule.time }))
+  const isSelectedDateAvailable = Boolean(draft.date && availableDates.includes(draft.date))
+  const isSelectedTimeAvailable = availableTimes.some(
+    (option) => option.id === draft.scheduleId && option.time === draft.time && option.status === 'AVAILABLE',
+  )
   const isLastStep = reservationStep === steps.length - 1
   const canContinue =
     validateReservationStep(reservationStep, draft) &&
     (reservationStep !== 0 || allServices.some((service) => service.id === draft.serviceId)) &&
-    (reservationStep !== 1 || doctors.some((doctor) => doctor.id === draft.doctorId))
+    (reservationStep !== 1 || doctors.some((doctor) => doctor.id === draft.doctorId)) &&
+    (reservationStep < 2 || isSelectedDateAvailable) &&
+    (reservationStep < 3 || isSelectedTimeAvailable)
   const unlockNextStep = () => {
     const nextStep = Math.min(steps.length - 1, reservationStep + 1)
     setMaxUnlockedStep((currentStep) => Math.max(currentStep, nextStep))
@@ -342,4 +366,92 @@ export function Reservasi({
       </div>
     </section>
   )
+}
+
+function getLocalDateKey(date: Date) {
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const day = String(date.getDate()).padStart(2, '0')
+
+  return `${year}-${month}-${day}`
+}
+
+function isWithinDoctorPracticeTime(doctor: Doctor | undefined, dateKey: string, time: string) {
+  if (!doctor) {
+    return true
+  }
+
+  const practiceRanges = getPracticeRangesForDate(doctor, dateKey)
+  const timeMinutes = toMinutes(time)
+
+  if (practiceRanges.length === 0 || timeMinutes === null) {
+    return true
+  }
+
+  return practiceRanges.some((range) => timeMinutes >= range.start && timeMinutes < range.end)
+}
+
+function getPracticeRangesForDate(doctor: Doctor, dateKey: string) {
+  const dayIndex = new Date(`${dateKey}T00:00:00`).getDay()
+
+  return doctor.schedule
+    .filter((schedule) => scheduleMatchesDay(schedule.day, dayIndex))
+    .flatMap((schedule) => parsePracticeRanges(schedule.detail))
+}
+
+function scheduleMatchesDay(dayLabel: string, dayIndex: number) {
+  if (dayLabel.includes(' - ')) {
+    const [startDay, endDay] = dayLabel.split(' - ').map((day) => day.trim())
+    const startIndex = dayIndexByName[startDay]
+    const endIndex = dayIndexByName[endDay]
+
+    if (startIndex === undefined || endIndex === undefined) {
+      return false
+    }
+
+    let cursor = startIndex
+
+    while (true) {
+      if (cursor === dayIndex) {
+        return true
+      }
+
+      if (cursor === endIndex) {
+        return false
+      }
+
+      cursor = (cursor + 1) % 7
+    }
+  }
+
+  return dayIndexByName[dayLabel.trim()] === dayIndex
+}
+
+function parsePracticeRanges(detail: string) {
+  const ranges: Array<{ end: number; start: number }> = []
+  const rangePattern = /(\d{1,2})\.(\d{2})\s*(?:WIB)?\s*-\s*(\d{1,2})\.(\d{2})/g
+  let match = rangePattern.exec(detail)
+
+  while (match) {
+    const start = Number(match[1]) * 60 + Number(match[2])
+    const end = Number(match[3]) * 60 + Number(match[4])
+
+    if (end > start) {
+      ranges.push({ end, start })
+    }
+
+    match = rangePattern.exec(detail)
+  }
+
+  return ranges
+}
+
+function toMinutes(time: string) {
+  const [hour, minute] = time.split('.').map(Number)
+
+  if (hour === undefined || minute === undefined || Number.isNaN(hour) || Number.isNaN(minute)) {
+    return null
+  }
+
+  return hour * 60 + minute
 }

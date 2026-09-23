@@ -9,7 +9,7 @@ import iconPemeriksaan from '../../assets/Icon pemeriksaan gigi.svg'
 import iconPelayananRamah from '../../assets/Vektor pelayanan ramah.svg'
 import iconTeknologi from '../../assets/Vektor teknologi modern.svg'
 import iconTenaga from '../../assets/Vector tenaga profesional.svg'
-import kursiJamOperasional from '../../assets/kursi klinik jam operasional.png'
+import kursiJamOperasional from '../../assets/clinic-hours-optimized.jpg'
 import vectorGarisTiga from '../../assets/Vector garis tiga.svg'
 import vectorPerawatanSemuaUsia from '../../assets/Vector perawatan gigi untuk semua usia.svg'
 import { ArticleCard } from '../../components/common/ArticleCard'
@@ -183,7 +183,13 @@ export function Beranda({
             </button>
           </div>
           <div className="hours-visual">
-            <img className="hours-image" src={kursiJamOperasional} alt="Ruang klinik Vlanda Dental" />
+            <img
+              className="hours-image"
+              src={kursiJamOperasional}
+              alt="Ruang klinik Vlanda Dental"
+              loading="lazy"
+              decoding="async"
+            />
             <div className="hours-frost">
               <img className="hours-lines" src={vectorGarisTiga} alt="" />
               <strong>

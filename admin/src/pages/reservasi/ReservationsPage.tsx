@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
 import {
-  getAdminReservations,
   rescheduleAdminReservation,
   updateAdminReservationStatus,
 } from '../../services/api'
@@ -34,7 +33,6 @@ export function ReservationsPage({
   token,
 }: ReservationsPageProps) {
   const [selectedId, setSelectedId] = useState('')
-  const [isLoading, setIsLoading] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
   const [error, setError] = useState('')
   const selectedReservation = reservations.find((reservation) => reservation.id === selectedId)
@@ -50,20 +48,6 @@ export function ReservationsPage({
 
     return reservations.filter((reservation) => reservation.status === activeStatus)
   }, [activeStatus, reservations])
-
-  useEffect(() => {
-    setIsLoading(true)
-    setError('')
-
-    getAdminReservations(token)
-      .then((nextReservations) => {
-        setReservations(nextReservations)
-      })
-      .catch((loadError) => {
-        setError(loadError instanceof Error ? loadError.message : 'Reservasi belum bisa dimuat.')
-      })
-      .finally(() => setIsLoading(false))
-  }, [setReservations, token])
 
   useEffect(() => {
     if (selectedReservation) {
@@ -161,10 +145,9 @@ export function ReservationsPage({
           </div>
 
           {error ? <p className="admin-inline-error">{error}</p> : null}
-          {isLoading ? <p className="admin-empty-state">Memuat reservasi dari database...</p> : null}
 
           <div className="management-list">
-            {!isLoading && filteredReservations.length === 0 ? (
+            {filteredReservations.length === 0 ? (
               <p className="admin-empty-state">Belum ada reservasi dengan status ini.</p>
             ) : null}
             {filteredReservations.map((reservation) => (

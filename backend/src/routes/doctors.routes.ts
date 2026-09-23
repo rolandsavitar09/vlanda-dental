@@ -37,8 +37,18 @@ doctorsRouter.get(
   asyncHandler(async (_req, res) => {
     const doctors = await prisma.doctor.findMany({
       orderBy: { name: 'asc' },
+      select: {
+        id: true,
+        isActive: true,
+        name: true,
+        note: true,
+        photoUrl: true,
+        role: true,
+      },
       where: { isActive: true },
     })
+
+    res.set('Cache-Control', 'public, max-age=60')
     res.json(doctors)
   }),
 )

@@ -1,4 +1,4 @@
-import heroClinic from '../../assets/hero-clinic.png'
+import heroClinic from '../../assets/hero-clinic-optimized.jpg'
 import type { UserProfile, View } from '../../types'
 
 type AuthPageProps = {
@@ -29,7 +29,7 @@ export function AuthPage({
   return (
     <section className="auth-page">
       <div className="auth-visual">
-        <img src={heroClinic} alt="Ruang klinik Vlanda Dental" />
+        <img src={heroClinic} alt="Ruang klinik Vlanda Dental" decoding="async" />
         <div>
           <span className="pill">Customer Area</span>
           <h1>{isRegister ? 'Buat Akun Customer' : 'Masuk ke Akun Customer'}</h1>
