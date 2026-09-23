@@ -821,6 +821,13 @@
     padding: 4px 8px;
   }
 
+  .date-confirm-button {
+    font-size: 0.72rem;
+    justify-self: stretch;
+    min-height: 36px;
+    width: 100%;
+  }
+
   #layanan-unggulan {
     padding-top: 30px;
   }

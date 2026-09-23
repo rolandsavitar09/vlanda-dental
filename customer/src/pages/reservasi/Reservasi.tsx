@@ -231,10 +231,18 @@ export function Reservasi({
               <p className="empty-state">Belum ada jadwal tersedia untuk dokter ini.</p>
             ) : null}
             {availableDates.map((date) => (
-              <button
+              <div
                 className={draft.date === date ? 'date-choice active' : 'date-choice'}
                 key={date}
-                type="button"
+                role="button"
+                tabIndex={0}
+                onKeyDown={(event) => {
+                  if (event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault()
+                    setDraft({ ...draft, date, scheduleId: '', time: '' })
+                    lockAfterStep(2)
+                  }
+                }}
                 onClick={() => {
                   setDraft({ ...draft, date, scheduleId: '', time: '' })
                   lockAfterStep(2)
@@ -249,7 +257,20 @@ export function Reservasi({
                     ? 'Tersedia'
                     : 'Penuh'}
                 </span>
-              </button>
+                {draft.date === date ? (
+                  <button
+                    className="date-confirm-button"
+                    type="button"
+                    onClick={(event) => {
+                      event.stopPropagation()
+                      setMaxUnlockedStep((currentStep) => Math.max(currentStep, 3))
+                      setReservationStep(3)
+                    }}
+                  >
+                    Konfirmasi
+                  </button>
+                ) : null}
+              </div>
             ))}
           </div>
         ) : null}
