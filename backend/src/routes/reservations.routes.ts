@@ -18,10 +18,10 @@ const includeReservationRelations = {
 
 const getReservationDateRange = (date: string | Date) => {
   const start = new Date(date)
-  start.setHours(0, 0, 0, 0)
+  start.setUTCHours(0, 0, 0, 0)
 
   const end = new Date(start)
-  end.setDate(end.getDate() + 1)
+  end.setUTCDate(end.getUTCDate() + 1)
 
   return { end, start }
 }
@@ -30,6 +30,10 @@ const createDailyReservationCode = async (
   tx: Prisma.TransactionClient,
   date: Date,
 ) => {
+  // Serialize code allocation per Jakarta calendar day so concurrent
+  // reservations cannot calculate the same count + 1 value.
+  const dayKey = jakartaDateKey(date)
+  await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${`vlanda-reservation-code:${dayKey}`}))`
   const { end, start } = getReservationDateRange(date)
   const totalToday = await tx.reservation.count({
     where: {
@@ -41,6 +45,29 @@ const createDailyReservationCode = async (
   })
 
   return `RSV${String(totalToday + 1).padStart(4, '0')}`
+}
+
+const jakartaDateKey = (date: Date) => new Intl.DateTimeFormat('en-CA', {
+  timeZone: 'Asia/Jakarta', year: 'numeric', month: '2-digit', day: '2-digit',
+}).format(date)
+
+const parseJakartaDateTime = (date: unknown, time: unknown) => {
+  if (typeof date !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(date)
+    || typeof time !== 'string' || !/^([01]\d|2[0-3])\.[0-5]\d$/.test(time)) {
+    throw new ApiError(400, 'Format tanggal atau jam tidak valid')
+  }
+  const [year, month, day] = date.split('-').map(Number)
+  const [hour, minute] = time.split('.').map(Number)
+  const instant = new Date(Date.UTC(year, month - 1, day, hour - 7, minute))
+  if (jakartaDateKey(instant) !== date) throw new ApiError(400, 'Tanggal tidak valid')
+  const now = new Date()
+  const jakartaNow = new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'Asia/Jakarta', year: 'numeric', month: '2-digit', day: '2-digit',
+    hour: '2-digit', minute: '2-digit', hourCycle: 'h23',
+  }).format(now)
+  const requested = `${date} ${time.replace('.', ':')}`
+  if (requested <= jakartaNow) throw new ApiError(409, 'Jam yang sudah lewat tidak dapat dibooking')
+  return new Date(Date.UTC(year, month - 1, day))
 }
 
 const parseEstimatedDuration = (value: string) => {
@@ -58,15 +85,10 @@ const parseEstimatedDuration = (value: string) => {
   return 30
 }
 
-const toMinutes = (time: string) => {
-  const [hour, minute] = time.split('.').map(Number)
-
-  return hour * 60 + minute
-}
-
 const createBlockedTimes = (startTime: string, estimatedDuration: string) => {
-  const blocks = Math.max(1, Math.ceil(parseEstimatedDuration(estimatedDuration) / 30) + 1)
-  const startMinutes = toMinutes(startTime)
+  const blocks = Math.max(1, Math.ceil(parseEstimatedDuration(estimatedDuration) / 30))
+  const [hour, minute] = startTime.split('.').map(Number)
+  const startMinutes = hour * 60 + minute
 
   return Array.from({ length: blocks }, (_item, index) => {
     const totalMinutes = startMinutes + index * 30
@@ -77,18 +99,16 @@ const createBlockedTimes = (startTime: string, estimatedDuration: string) => {
   })
 }
 
-const assertReservationSlotsAvailable = async (
+const claimReservationSlots = async (
   tx: Prisma.TransactionClient,
   {
     date,
     doctorId,
-    ignoredReservationId,
     serviceDuration,
     time,
   }: {
     date: Date
     doctorId: string
-    ignoredReservationId?: string
     serviceDuration: string
     time: string
   },
@@ -107,17 +127,11 @@ const assertReservationSlotsAvailable = async (
     throw new ApiError(409, 'Slot durasi layanan ini tidak cukup tersedia')
   }
 
-  const hasConflict = schedules.some(
-    (schedule) =>
-      schedule.status === 'OFF' ||
-      (schedule.status === 'FULL' && schedule.note !== ignoredReservationId),
-  )
-
-  if (hasConflict) {
-    throw new ApiError(409, 'Jadwal pengganti bentrok dengan reservasi lain')
-  }
-
   return { blockedTimes, selectedSchedule }
+}
+
+const lockReservation = async (tx: Prisma.TransactionClient, id: string) => {
+  await tx.$queryRaw`SELECT "id" FROM "Reservation" WHERE "id" = ${id} FOR UPDATE`
 }
 
 reservationsRouter.get(
@@ -145,20 +159,7 @@ reservationsRouter.post(
       throw new ApiError(400, 'Layanan, dokter, tanggal, dan jam wajib diisi')
     }
 
-    if (scheduleId) {
-      const schedule = await prisma.doctorSchedule.findUnique({ where: { id: scheduleId } })
-      if (
-        !schedule ||
-        schedule.status !== 'AVAILABLE' ||
-        schedule.doctorId !== doctorId ||
-        schedule.time !== time ||
-        schedule.date.toISOString().slice(0, 10) !== String(date).slice(0, 10)
-      ) {
-        throw new ApiError(409, 'Jadwal tidak tersedia')
-      }
-    }
-
-    const reservationDate = new Date(date)
+    const reservationDate = parseJakartaDateTime(date, time)
     const reservation = await prisma.$transaction(async (tx) => {
       const service = await tx.service.findUnique({ where: { id: serviceId } })
 
@@ -176,7 +177,7 @@ reservationsRouter.post(
         throw new ApiError(409, 'Dokter tidak tersedia')
       }
 
-      const { blockedTimes, selectedSchedule } = await assertReservationSlotsAvailable(tx, {
+      const { blockedTimes, selectedSchedule } = await claimReservationSlots(tx, {
         date: reservationDate,
         doctorId,
         serviceDuration: service.estimatedDuration,
@@ -186,6 +187,12 @@ reservationsRouter.post(
       if (scheduleId && selectedSchedule.id !== scheduleId) {
         throw new ApiError(409, 'Jadwal tidak tersedia')
       }
+
+      const claimed = await tx.doctorSchedule.updateMany({
+        where: { date: reservationDate, doctorId, time: { in: blockedTimes }, status: 'AVAILABLE' },
+        data: { note: 'claim-pending', status: 'FULL' },
+      })
+      if (claimed.count !== blockedTimes.length) throw new ApiError(409, 'Jadwal sudah diambil reservasi lain')
 
       const code = await createDailyReservationCode(tx, reservationDate)
       const nextReservation = await tx.reservation.create({
@@ -203,12 +210,8 @@ reservationsRouter.post(
       })
 
       await tx.doctorSchedule.updateMany({
-        where: {
-          date: reservationDate,
-          doctorId,
-          time: { in: blockedTimes },
-        },
-        data: { note: nextReservation.id, status: 'FULL' },
+        where: { date: reservationDate, doctorId, time: { in: blockedTimes }, note: 'claim-pending' },
+        data: { note: nextReservation.id },
       })
 
       return nextReservation
@@ -233,13 +236,15 @@ reservationsRouter.put(
   requireAuth,
   asyncHandler(async (req: AuthedRequest, res) => {
     const reservation = await prisma.$transaction(async (tx) => {
-      const currentReservation = await tx.reservation.findUnique({
+      let currentReservation = await tx.reservation.findUnique({
         where: { id: getParam(req.params.id, 'id') },
       })
 
       if (!currentReservation) {
         throw new ApiError(404, 'Reservasi tidak ditemukan')
       }
+      await lockReservation(tx, currentReservation.id)
+      currentReservation = await tx.reservation.findUniqueOrThrow({ where: { id: currentReservation.id } })
 
       const isAdmin = req.user?.role === 'ADMIN' || req.user?.role === 'DOCTOR'
 
@@ -250,6 +255,9 @@ reservationsRouter.put(
       if (currentReservation.status === 'COMPLETED') {
         throw new ApiError(409, 'Reservasi selesai tidak bisa dibatalkan')
       }
+      if (currentReservation.status === 'CANCELLED') return tx.reservation.findUniqueOrThrow({
+        where: { id: currentReservation.id }, include: includeReservationRelations,
+      })
 
       const updatedReservation = await tx.reservation.update({
         where: { id: currentReservation.id },
@@ -257,17 +265,10 @@ reservationsRouter.put(
         include: includeReservationRelations,
       })
 
-      if (currentReservation.scheduleId) {
-        await tx.doctorSchedule.updateMany({
-          where: {
-            OR: [
-              { id: currentReservation.scheduleId },
-              { note: currentReservation.id },
-            ],
-          },
-          data: { note: null, status: 'AVAILABLE' },
-        })
-      }
+      await tx.doctorSchedule.updateMany({
+        where: { note: currentReservation.id, status: 'FULL' },
+        data: { note: null, status: 'AVAILABLE' },
+      })
 
       return updatedReservation
     })
@@ -297,12 +298,17 @@ reservationsRouter.put(
     if (!status) throw new ApiError(400, 'Status wajib diisi')
 
     const reservation = await prisma.$transaction(async (tx) => {
-      const currentReservation = await tx.reservation.findUnique({
+      let currentReservation = await tx.reservation.findUnique({
         where: { id: getParam(req.params.id, 'id') },
       })
 
       if (!currentReservation) {
         throw new ApiError(404, 'Reservasi tidak ditemukan')
+      }
+      await lockReservation(tx, currentReservation.id)
+      currentReservation = await tx.reservation.findUniqueOrThrow({ where: { id: currentReservation.id } })
+      if (currentReservation.status === 'CANCELLED' && status !== 'CANCELLED') {
+        throw new ApiError(409, 'Reservasi dibatalkan tidak dapat diaktifkan kembali')
       }
 
       const updatedReservation = await tx.reservation.update({
@@ -311,14 +317,9 @@ reservationsRouter.put(
         include: includeReservationRelations,
       })
 
-      if (status === 'CANCELLED' && currentReservation.scheduleId) {
+      if (status === 'CANCELLED' && currentReservation.status !== 'CANCELLED') {
         await tx.doctorSchedule.updateMany({
-          where: {
-            OR: [
-              { id: currentReservation.scheduleId },
-              { note: currentReservation.id },
-            ],
-          },
+          where: { note: currentReservation.id, status: 'FULL' },
           data: { note: null, status: 'AVAILABLE' },
         })
       }
@@ -351,25 +352,29 @@ reservationsRouter.put(
     if (!date || !time) throw new ApiError(400, 'Tanggal dan jam wajib diisi')
 
     const reservation = await prisma.$transaction(async (tx) => {
-      const currentReservation = await tx.reservation.findUnique({
+      let currentReservation = await tx.reservation.findUnique({
         where: { id: getParam(req.params.id, 'id') },
       })
 
       if (!currentReservation) {
         throw new ApiError(404, 'Reservasi tidak ditemukan')
       }
+      await lockReservation(tx, currentReservation.id)
+      currentReservation = await tx.reservation.findUniqueOrThrow({ where: { id: currentReservation.id } })
+      if (currentReservation.status === 'CANCELLED' || currentReservation.status === 'COMPLETED') {
+        throw new ApiError(409, 'Reservasi ini tidak dapat dijadwalkan ulang')
+      }
 
-      const nextDate = new Date(date)
+      const nextDate = parseJakartaDateTime(date, time)
       const service = await tx.service.findUnique({ where: { id: currentReservation.serviceId } })
 
       if (!service) {
         throw new ApiError(404, 'Layanan tidak ditemukan')
       }
 
-      const { blockedTimes, selectedSchedule } = await assertReservationSlotsAvailable(tx, {
+      const { blockedTimes, selectedSchedule } = await claimReservationSlots(tx, {
         date: nextDate,
         doctorId: currentReservation.doctorId,
-        ignoredReservationId: currentReservation.id,
         serviceDuration: service.estimatedDuration,
         time,
       })
@@ -378,18 +383,19 @@ reservationsRouter.put(
         throw new ApiError(409, 'Jadwal pengganti tidak tersedia')
       }
 
-      const activeReservationAtTarget = await tx.reservation.findFirst({
-        where: {
-          date: nextDate,
-          doctorId: currentReservation.doctorId,
-          id: { not: currentReservation.id },
-          status: { not: 'CANCELLED' },
-          time,
-        },
+      const oldOwnedSlots = await tx.doctorSchedule.findMany({
+        where: { note: currentReservation.id, status: 'FULL' }, select: { id: true, date: true, time: true },
       })
-
-      if (activeReservationAtTarget) {
-        throw new ApiError(409, 'Jadwal pengganti bentrok dengan reservasi lain')
+      const oldKeys = new Set(oldOwnedSlots.map((slot) => `${slot.date.toISOString()}|${slot.time}`))
+      const newlyNeeded = blockedTimes.filter((slotTime) =>
+        !oldKeys.has(`${nextDate.toISOString()}|${slotTime}`),
+      )
+      if (newlyNeeded.length) {
+        const claimed = await tx.doctorSchedule.updateMany({
+          where: { date: nextDate, doctorId: currentReservation.doctorId, time: { in: newlyNeeded }, status: 'AVAILABLE' },
+          data: { note: currentReservation.id, status: 'FULL' },
+        })
+        if (claimed.count !== newlyNeeded.length) throw new ApiError(409, 'Jadwal pengganti bentrok dengan reservasi lain')
       }
 
       const shouldRefreshCode =
@@ -411,25 +417,12 @@ reservationsRouter.put(
         include: includeReservationRelations,
       })
 
-      if (currentReservation.scheduleId) {
-        await tx.doctorSchedule.updateMany({
-          where: {
-            OR: [
-              { id: currentReservation.scheduleId },
-              { note: currentReservation.id },
-            ],
-          },
-          data: { note: null, status: 'AVAILABLE' },
-        })
-      }
-
-      await tx.doctorSchedule.updateMany({
-        where: {
-          date: nextDate,
-          doctorId: currentReservation.doctorId,
-          time: { in: blockedTimes },
-        },
-        data: { note: currentReservation.id, status: 'FULL' },
+      const releaseTimes = oldOwnedSlots
+        .filter((slot) => slot.date.toISOString() !== nextDate.toISOString() || !blockedTimes.includes(slot.time))
+        .map((slot) => slot.id)
+      if (releaseTimes.length) await tx.doctorSchedule.updateMany({
+        where: { id: { in: releaseTimes }, note: currentReservation.id, status: 'FULL' },
+        data: { note: null, status: 'AVAILABLE' },
       })
 
       return updatedReservation

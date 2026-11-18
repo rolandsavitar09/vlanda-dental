@@ -152,14 +152,13 @@ export function SchedulePage({ doctors, scheduleSlots, setScheduleSlots, token }
         status: nextStatus,
         time: draft.time.trim(),
       })
-      const exists = scheduleSlots.some((slot) => slot.id === savedSlot.id)
-      const nextSlots = exists
-        ? scheduleSlots.map((slot) => (slot.id === savedSlot.id ? savedSlot : slot))
-        : [savedSlot, ...scheduleSlots]
+      // Re-read the persisted list after each write. This avoids the admin
+      // view drifting from the database when creating several slots quickly.
+      const nextSlots = await getAdminSchedules(token)
 
       setScheduleSlots(sortSlots(nextSlots))
       setSelectedId(savedSlot.id)
-      setDraft(savedSlot)
+      setDraft(nextSlots.find((slot) => slot.id === savedSlot.id) ?? savedSlot)
       setMessage('Jadwal berhasil disimpan.')
     } catch (saveError) {
       setError(saveError instanceof Error ? saveError.message : 'Jadwal gagal disimpan.')

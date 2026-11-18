@@ -143,24 +143,16 @@ schedulesRouter.put(
       throw new ApiError(400, 'Dokter, tanggal, dan status wajib diisi')
     }
 
-    await prisma.doctorSchedule.updateMany({
-      where: {
-        date: new Date(date),
-        doctorId,
-      },
-      data: {
-        note: status === 'AVAILABLE' ? null : undefined,
-        status,
-      },
-    })
-
-    const schedules = await prisma.doctorSchedule.findMany({
-      where: {
-        date: new Date(date),
-        doctorId,
-      },
-      include: withScheduleBooking,
-      orderBy: [{ date: 'asc' }, { time: 'asc' }],
+    const schedules = await prisma.$transaction(async (tx) => {
+      await tx.doctorSchedule.updateMany({
+        where: { date: new Date(date), doctorId, status: { not: 'FULL' }, note: null },
+        data: { status },
+      })
+      return tx.doctorSchedule.findMany({
+        where: { date: new Date(date), doctorId },
+        include: withScheduleBooking,
+        orderBy: [{ date: 'asc' }, { time: 'asc' }],
+      })
     })
 
     res.json(await attachComputedBooking(schedules))
@@ -173,10 +165,19 @@ schedulesRouter.put(
   requireAdmin,
   asyncHandler(async (req, res) => {
     const { date, ...payload } = req.body
-    const schedule = await prisma.doctorSchedule.update({
-      where: { id: getParam(req.params.id, 'id') },
-      data: { ...payload, ...(date ? { date: new Date(date) } : {}) },
-      include: withScheduleBooking,
+    const schedule = await prisma.$transaction(async (tx) => {
+      const id = getParam(req.params.id, 'id')
+      const current = await tx.doctorSchedule.findUnique({ where: { id } })
+      if (!current) throw new ApiError(404, 'Slot jadwal tidak ditemukan')
+      if (current.status === 'FULL' && current.note) {
+        throw new ApiError(409, 'Slot sudah dimiliki reservasi dan tidak dapat diubah')
+      }
+      const updated = await tx.doctorSchedule.updateMany({
+        where: { id, status: current.status, note: current.note },
+        data: { ...payload, ...(date ? { date: new Date(date) } : {}) },
+      })
+      if (updated.count !== 1) throw new ApiError(409, 'Slot berubah bersamaan, muat ulang jadwal')
+      return tx.doctorSchedule.findUniqueOrThrow({ where: { id }, include: withScheduleBooking })
     })
 
     const [computedSchedule] = await attachComputedBooking([schedule])
