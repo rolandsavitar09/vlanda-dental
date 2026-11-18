@@ -84,7 +84,9 @@ export function SchedulePage({ doctors, scheduleSlots, setScheduleSlots, token }
   }, [selectedSlot])
 
   function createBlankSlot() {
-    const firstDoctor = doctors.find((doctor) => doctor.isActive) ?? doctors[0]
+    const firstDoctor = doctors.find((doctor) => doctor.id === activeDoctorId)
+      ?? doctors.find((doctor) => doctor.isActive)
+      ?? doctors[0]
 
     return {
       ...emptySlot,
@@ -107,6 +109,20 @@ export function SchedulePage({ doctors, scheduleSlots, setScheduleSlots, token }
     setMessage('')
     setError('')
     scrollToEditor()
+  }
+
+  function editSlot() {
+    const slot = (selectedSlot?.doctorId === activeDoctorId ? selectedSlot : undefined)
+      ?? filteredSlots[0]
+
+    if (!slot) {
+      setError('Belum ada slot untuk diedit. Gunakan Tambah Slot untuk membuat jadwal.')
+      setMessage('')
+      scrollToEditor()
+      return
+    }
+
+    selectSlot(slot)
   }
 
   function scrollToEditor() {
@@ -227,7 +243,7 @@ export function SchedulePage({ doctors, scheduleSlots, setScheduleSlots, token }
           ))}
         </div>
         <div className="schedule-quick-actions">
-          <button type="button" onClick={scrollToEditor}>Edit Slot</button>
+          <button type="button" onClick={editSlot}>Edit Slot</button>
           <button type="button" onClick={createSlot}>Tambah Slot</button>
         </div>
       </div>

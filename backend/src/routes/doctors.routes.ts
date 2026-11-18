@@ -27,7 +27,12 @@ doctorsRouter.get(
   requireAuth,
   requireAdmin,
   asyncHandler(async (_req, res) => {
-    const doctors = await prisma.doctor.findMany({ orderBy: { name: 'asc' } })
+    // Inactive doctors are archived by the delete action. Keep them out of the
+    // active management list after a reload so they do not appear to return.
+    const doctors = await prisma.doctor.findMany({
+      where: { isActive: true },
+      orderBy: { name: 'asc' },
+    })
     res.json(doctors)
   }),
 )

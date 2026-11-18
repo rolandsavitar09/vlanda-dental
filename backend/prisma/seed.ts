@@ -109,13 +109,9 @@ async function main() {
 
   await prisma.doctor.upsert({
     where: { id: 'linda' },
-    update: {
-      isActive: true,
-      name: 'drg. Linda Agustin Ekawati',
-      note: 'Berpengalaman menangani pemeriksaan, scaling, dan konsultasi keluarga.',
-      photoUrl: '/uploads/doctors/drg-linda.png',
-      role: 'Dokter Gigi Umum',
-    },
+    // Seeding may run during deployment. Do not overwrite admin changes such
+    // as renaming or archiving a doctor on subsequent runs.
+    update: {},
     create: {
       id: 'linda',
       name: 'drg. Linda Agustin Ekawati',
@@ -127,13 +123,7 @@ async function main() {
 
   await prisma.doctor.upsert({
     where: { id: 'ervinda' },
-    update: {
-      isActive: true,
-      name: 'drg. Ervinda Yuliawati',
-      note: 'Fokus pada pendekatan ramah untuk pasien dewasa maupun anak.',
-      photoUrl: '/uploads/doctors/drg-vinda.png',
-      role: 'Dokter Gigi Umum',
-    },
+    update: {},
     create: {
       id: 'ervinda',
       name: 'drg. Ervinda Yuliawati',
@@ -164,16 +154,6 @@ async function main() {
       create: service,
     })
   }
-
-  await prisma.doctorSchedule.deleteMany({
-    where: {
-      date: { gte: getTodayUtc() },
-      note: null,
-      reservations: { none: {} },
-      status: 'AVAILABLE',
-      time: '15.00',
-    },
-  })
 
   const slots = createDoctorSlots(getTodayUtc(), 60)
 
