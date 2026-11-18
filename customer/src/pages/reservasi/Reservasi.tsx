@@ -83,7 +83,16 @@ export function Reservasi({
   const availableTimes = doctorSlots
     .filter((schedule) => schedule.date.slice(0, 10) === draft.date)
     .sort((first, second) => first.time.localeCompare(second.time))
-    .map<ReservationTimeOption>((schedule) => ({ id: schedule.id, status: schedule.status, time: schedule.time }))
+    .map<ReservationTimeOption>((schedule) => {
+      const requiredTimes = getRequiredTimes(schedule.time, selectedService?.duration ?? '')
+      const matchingSlots = requiredTimes.map((time) => doctorSlots.find((candidate) =>
+        candidate.date.slice(0, 10) === draft.date && candidate.time === time,
+      ))
+      const status = matchingSlots.some((slot) => !slot || slot.status !== 'AVAILABLE')
+        ? matchingSlots.some((slot) => slot?.status === 'OFF') ? 'OFF' : 'FULL'
+        : 'AVAILABLE'
+      return { id: schedule.id, status, time: schedule.time }
+    })
   const isSelectedDateAvailable = Boolean(draft.date && availableDates.includes(draft.date))
   const isSelectedTimeAvailable = availableTimes.some(
     (option) => option.id === draft.scheduleId && option.time === draft.time && option.status === 'AVAILABLE',
@@ -160,12 +169,12 @@ export function Reservasi({
                       onKeyDown={(event) => {
                         if (event.key === 'Enter' || event.key === ' ') {
                           event.preventDefault()
-                          setDraft({ ...draft, serviceId: service.id })
+                          setDraft({ ...draft, serviceId: service.id, scheduleId: '', time: '' })
                           lockAfterStep(0)
                         }
                       }}
                       onClick={() => {
-                        setDraft({ ...draft, serviceId: service.id })
+                        setDraft({ ...draft, serviceId: service.id, scheduleId: '', time: '' })
                         lockAfterStep(0)
                       }}
                     >
@@ -296,7 +305,7 @@ export function Reservasi({
               >
                 <Icon name="clock" />
                 {option.time}
-                {option.status !== 'AVAILABLE' ? <small>Penuh</small> : null}
+                {option.status !== 'AVAILABLE' ? <small>{option.status === 'OFF' ? 'Libur' : 'Penuh'}</small> : null}
               </button>
             ))}
           </div>
@@ -475,4 +484,18 @@ function toMinutes(time: string) {
   }
 
   return hour * 60 + minute
+}
+
+function getRequiredTimes(startTime: string, duration: string) {
+  const hourMatch = duration.match(/(\d+)\s*jam/i)
+  const minuteMatches = Array.from(duration.matchAll(/(\d+)\s*menit/gi))
+  const minutes = hourMatch?.[1]
+    ? Number(hourMatch[1]) * 60
+    : minuteMatches.length ? Math.max(...minuteMatches.map((match) => Number(match[1]))) : 30
+  const count = Math.max(1, Math.ceil(minutes / 30))
+  const start = toMinutes(startTime) ?? 0
+  return Array.from({ length: count }, (_item, index) => {
+    const total = start + index * 30
+    return `${String(Math.floor(total / 60)).padStart(2, '0')}.${String(total % 60).padStart(2, '0')}`
+  })
 }

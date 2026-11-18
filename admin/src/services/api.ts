@@ -384,7 +384,6 @@ export async function saveAdminSchedule(token: string, slot: AdminScheduleSlot) 
   const payload = {
     doctorId: slot.doctorId,
     date: slot.date,
-    note: '',
     status: scheduleStatusToApi[slot.status],
     time: slot.time,
   }
@@ -396,6 +395,15 @@ export async function saveAdminSchedule(token: string, slot: AdminScheduleSlot) 
   })
 
   return toAdminSchedule(savedSchedule)
+}
+
+export async function updateAdminScheduleStatus(token: string, id: string, status: AdminScheduleStatus) {
+  const schedule = await request<ApiSchedule>(`/api/schedules/${id}`, {
+    body: JSON.stringify({ status: scheduleStatusToApi[status] }),
+    method: 'PUT',
+    token,
+  })
+  return toAdminSchedule(schedule)
 }
 
 export async function updateAdminScheduleDayStatus(

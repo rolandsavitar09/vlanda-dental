@@ -3,7 +3,7 @@ import {
   deleteAdminSchedule,
   getAdminSchedules,
   saveAdminSchedule,
-  updateAdminScheduleDayStatus,
+  updateAdminScheduleStatus,
 } from '../../services/api'
 import type { AdminDoctor, AdminScheduleSlot, AdminScheduleStatus } from '../../types'
 
@@ -186,9 +186,9 @@ export function SchedulePage({ doctors, scheduleSlots, setScheduleSlots, token }
     }
   }
 
-  async function setDayStatus(status: AdminScheduleStatus) {
-    if (!draft.doctorId || !draft.date) {
-      setError('Pilih salah satu tanggal dokter dulu.')
+  async function setSlotStatus(status: AdminScheduleStatus) {
+    if (!draft.id) {
+      setError('Pilih slot yang akan diubah.')
       return
     }
 
@@ -197,15 +197,12 @@ export function SchedulePage({ doctors, scheduleSlots, setScheduleSlots, token }
     setMessage('')
 
     try {
-      const updatedSlots = await updateAdminScheduleDayStatus(token, draft.doctorId, draft.date, status)
-      const updatedIds = new Set(updatedSlots.map((slot) => slot.id))
-      const nextSlots = scheduleSlots.map((slot) =>
-        updatedIds.has(slot.id) ? updatedSlots.find((updatedSlot) => updatedSlot.id === slot.id) ?? slot : slot,
-      )
-
+      await updateAdminScheduleStatus(token, draft.id, status)
+      const nextSlots = await getAdminSchedules(token)
       setScheduleSlots(sortSlots(nextSlots))
-      setDraft(updatedSlots.find((slot) => slot.id === draft.id) ?? updatedSlots[0] ?? draft)
-      setMessage(`Status tanggal ${draft.date} berhasil diubah.`)
+      const updatedSlot = nextSlots.find((slot) => slot.id === draft.id)
+      if (updatedSlot) setDraft(updatedSlot)
+      setMessage(`Status slot ${draft.time} tanggal ${draft.date} berhasil diubah.`)
     } catch (statusError) {
       setError(statusError instanceof Error ? statusError.message : 'Status tanggal gagal disimpan.')
     } finally {
@@ -338,9 +335,9 @@ export function SchedulePage({ doctors, scheduleSlots, setScheduleSlots, token }
           </div>
 
           <div className="editor-actions">
-            <button type="button" disabled={isSaving} onClick={() => setDayStatus('Penuh')}>Penuh</button>
-            <button type="button" disabled={isSaving} onClick={() => setDayStatus('Libur')}>Libur</button>
-            <button className="confirm" type="button" disabled={isSaving} onClick={() => setDayStatus('Tersedia')}>Tersedia</button>
+            <button type="button" disabled={isSaving || !selectedId} onClick={() => setSlotStatus('Penuh')}>Penuh</button>
+            <button type="button" disabled={isSaving || !selectedId} onClick={() => setSlotStatus('Libur')}>Libur</button>
+            <button className="confirm" type="button" disabled={isSaving || !selectedId} onClick={() => setSlotStatus('Tersedia')}>Tersedia</button>
             <button className="confirm" type="button" disabled={isSaving} onClick={() => saveSlot()}>
               {isSaving ? 'Menyimpan...' : 'Simpan'}
             </button>

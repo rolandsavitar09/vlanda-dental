@@ -249,6 +249,13 @@ function App() {
       .finally(() => setIsLoadingSchedules(false))
   }
 
+  async function refreshSchedules() {
+    const nextSchedules = await getSchedules()
+    setSchedules(nextSchedules)
+    setHasLoadedSchedules(true)
+    return nextSchedules
+  }
+
   async function handleAuthSubmit(mode: 'login' | 'register') {
     const email = authDraft.email.trim().toLowerCase()
     const password = authPassword.trim()
@@ -328,6 +335,16 @@ function App() {
     setIsSubmittingReservation(true)
 
     try {
+      const latestSchedules = await refreshSchedules()
+      const selectedSlot = latestSchedules.find((schedule) =>
+        schedule.id === draft.scheduleId && schedule.doctorId === draft.doctorId
+        && schedule.date.slice(0, 10) === draft.date && schedule.time === draft.time
+        && schedule.status === 'AVAILABLE',
+      )
+      if (!selectedSlot) {
+        setReservationError('Jadwal sudah tidak tersedia, silakan pilih jam lain.')
+        return
+      }
       const nextReservation = await createReservation(user.token, {
         complaint: draft.complaint || 'Belum ada keluhan tambahan.',
         date: draft.date,
@@ -342,7 +359,11 @@ function App() {
       setDraft(emptyReservationDraft)
       navigate('reservation-detail')
     } catch (error) {
-      setReservationError(error instanceof Error ? error.message : 'Reservasi gagal dikirim.')
+      const message = error instanceof Error ? error.message : 'Reservasi gagal dikirim.'
+      setReservationError(/409|tidak tersedia|bentrok|slot/i.test(message)
+        ? 'Jadwal sudah tidak tersedia, silakan pilih jam lain.'
+        : message)
+      void refreshSchedules().catch(() => undefined)
     } finally {
       setIsSubmittingReservation(false)
     }

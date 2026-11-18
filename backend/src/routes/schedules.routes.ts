@@ -143,19 +143,7 @@ schedulesRouter.put(
       throw new ApiError(400, 'Dokter, tanggal, dan status wajib diisi')
     }
 
-    const schedules = await prisma.$transaction(async (tx) => {
-      await tx.doctorSchedule.updateMany({
-        where: { date: new Date(date), doctorId, status: { not: 'FULL' }, note: null },
-        data: { status },
-      })
-      return tx.doctorSchedule.findMany({
-        where: { date: new Date(date), doctorId },
-        include: withScheduleBooking,
-        orderBy: [{ date: 'asc' }, { time: 'asc' }],
-      })
-    })
-
-    res.json(await attachComputedBooking(schedules))
+    throw new ApiError(409, 'Perubahan status massal dinonaktifkan. Pilih satu slot jadwal.')
   }),
 )
 
@@ -169,7 +157,31 @@ schedulesRouter.put(
       const id = getParam(req.params.id, 'id')
       const current = await tx.doctorSchedule.findUnique({ where: { id } })
       if (!current) throw new ApiError(404, 'Slot jadwal tidak ditemukan')
-      if (current.status === 'FULL' && current.note) {
+      const activeReservation = await tx.reservation.findFirst({
+        where: { scheduleId: id, status: { not: 'CANCELLED' } }, select: { id: true },
+      })
+      const ownerReservation = current.note
+        ? await tx.reservation.findFirst({ where: { id: current.note, status: { not: 'CANCELLED' } }, select: { id: true } })
+        : null
+      const reservationsOnDate = await tx.reservation.findMany({
+        where: { doctorId: current.doctorId, date: current.date, status: { not: 'CANCELLED' } },
+        include: { service: { select: { estimatedDuration: true } } },
+      })
+      const isCoveredByReservation = reservationsOnDate.some((reservation) => {
+        const duration = reservation.service.estimatedDuration
+        const hourMatch = duration.match(/(\d+)\s*jam/i)
+        const minuteMatches = Array.from(duration.matchAll(/(\d+)\s*menit/gi))
+        const minutes = hourMatch?.[1] ? Number(hourMatch[1]) * 60
+          : minuteMatches.length ? Math.max(...minuteMatches.map((match) => Number(match[1]))) : 30
+        const [hour, minute] = reservation.time.split('.').map(Number)
+        const start = hour * 60 + minute
+        const count = Math.max(1, Math.ceil(minutes / 30))
+        return Array.from({ length: count }, (_value, index) => {
+          const total = start + index * 30
+          return `${String(Math.floor(total / 60)).padStart(2, '0')}.${String(total % 60).padStart(2, '0')}`
+        }).includes(current.time)
+      })
+      if (activeReservation || ownerReservation || isCoveredByReservation) {
         throw new ApiError(409, 'Slot sudah dimiliki reservasi dan tidak dapat diubah')
       }
       const updated = await tx.doctorSchedule.updateMany({
@@ -190,8 +202,13 @@ schedulesRouter.delete(
   requireAuth,
   requireAdmin,
   asyncHandler(async (req, res) => {
-    await prisma.doctorSchedule.delete({
-      where: { id: getParam(req.params.id, 'id') },
+    await prisma.$transaction(async (tx) => {
+      const id = getParam(req.params.id, 'id')
+      const activeReservation = await tx.reservation.findFirst({
+        where: { OR: [{ scheduleId: id }, { schedule: { id } }], status: { not: 'CANCELLED' } },
+      })
+      if (activeReservation) throw new ApiError(409, 'Slot memiliki reservasi aktif dan tidak dapat dihapus')
+      await tx.doctorSchedule.delete({ where: { id } })
     })
 
     res.status(204).send()

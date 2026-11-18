@@ -120,10 +120,12 @@ const claimReservationSlots = async (
       doctorId,
       time: { in: blockedTimes },
     },
+    include: { reservations: { where: { status: { not: 'CANCELLED' } }, select: { id: true } } },
   })
   const selectedSchedule = schedules.find((schedule) => schedule.time === time)
 
-  if (!selectedSchedule || schedules.length < blockedTimes.length) {
+  if (!selectedSchedule || schedules.length < blockedTimes.length
+    || schedules.some((schedule) => schedule.reservations.length > 0)) {
     throw new ApiError(409, 'Slot durasi layanan ini tidak cukup tersedia')
   }
 
